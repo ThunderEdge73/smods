@@ -3063,7 +3063,7 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
     if force_no_scrollbar then
         scrollbox.scroll_args.overflow.node_config.maxh = nil
     end
-    if args.max_menu_h then
+    if args.max_menu_h and not force_no_scrollbar then
         local total_h = scrollbox.content.UIRoot.T.h
         local scrollbox_rows = scrollbox.content.UIRoot.children[1].children
         local curr = args.ref_table[args.ref_value]
@@ -3117,7 +3117,7 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
                             }
                         }
                     },
-                    (args.max_menu_h and not force_no_scrollbar) and {
+                    args.max_menu_h and {
                         n = G.UIT.C,
                         config = {
                             padding = 0.05,
@@ -3125,7 +3125,7 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
                         nodes = {
                             SMODS.GUI.scrollbar({
                                 w = 0.1,
-                                h = args.max_menu_h - 0.1,
+                                h = math.min(args.max_menu_h, scrollbox.content.UIRoot.T.h) - 0.1,
                                 scroll_collision_obj = scrollbox,
                                 knob_h = args.max_menu_h / 6,
                                 bg_colour = { 0, 0, 0, 0.15 },
