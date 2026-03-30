@@ -2843,69 +2843,68 @@ function SMODS.GUI.dropdown_select(args)
     args.display_choice_func = args.display_choice_func or function(option)
         return option
     end
+    local table_ref = args.ref_table
 	local arrow = SMODS.create_sprite(0, 0, args.scale * 0.75, args.scale * 0.75, "dropdown_arrow", { x = 0, y = 0 })
-	local dropdown_button = UIBox({
-		definition = {
-			n = G.UIT.ROOT,
-			config = {
-				colour = args.colour or G.C.RED,
-				r = 0.1,
-				padding = 0.1,
-                button_dist = 0,
-				button = "toggle_dropdown_menu",
-				hover = true,
-				args_table = args,
-                id = args.id
-			},
-			nodes = {
-				{
-                    n = G.UIT.C,
-                    config = {
-                        minw = args.minw,
-                        align = args.align or "cm",
-                    },
-                    nodes = {
-                        {
-                            n = G.UIT.T,
-                            config = {
-                                text = args.display_choice_func(args.ref_table[args.ref_value]),
-                                args_table = args,
-                                colour = args.text_colour or G.C.UI.TEXT_LIGHT,
-                                scale = args.scale,
-                            },
-                        },
-                    }
-                },
-                {
-                    n = G.UIT.C,
-                    config = { align = "cm" },
-                    nodes = {
-                        {
-                            n = G.UIT.O,
-                            config = {
-                                align = "cm",
-                                object = arrow,
-                            },
-                        }
-                    }
-                },
-			},
-		},
-		config = { align = "cm" },
-	})
     return {
         n = args.ui_type or G.UIT.R,
         config = {
-            align = "cm"
+            align = "cm",
         },
         nodes = {
             {
-                n = G.UIT.O,
+                n = G.UIT.R,
                 config = {
-                    object = dropdown_button
+                    colour = args.colour or G.C.RED,
+                    r = 0.1,
+                    padding = 0.1,
+                    button_dist = 0,
+                    button = "toggle_dropdown_menu",
+                    hover = true,
+                    args_table = args,
+                    id = args.id
                 },
-            }
-        }
+                nodes = {
+                    {
+                        n = G.UIT.C,
+                        config = {
+                            minw = args.minw,
+                            align = args.align or "cm",
+                        },
+                        nodes = {
+                            {
+                                n = G.UIT.T,
+                                config = {
+                                    ref_table = setmetatable({}, {
+                                        __index = function(_, k)
+                                            if k == args.ref_value then
+                                                return args.display_choice_func(table_ref[k])
+                                            end
+                                            return table_ref[k]
+                                        end
+                                    }),
+                                    ref_value = args.ref_value,
+                                    colour = args.text_colour or G.C.UI.TEXT_LIGHT,
+                                    scale = args.scale,
+                                },
+                            },
+                        }
+                    },
+                    {
+                        n = G.UIT.C,
+                        config = { align = "cm" },
+                        nodes = {
+                            {
+                                n = G.UIT.O,
+                                config = {
+                                    align = "cm",
+                                    object = arrow,
+                                },
+                            }
+                        }
+                    },
+                },
+            },
+        },
     }
 end
 
