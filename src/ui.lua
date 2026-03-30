@@ -2840,6 +2840,9 @@ function SMODS.GUI.dropdown_select(args)
     end
     args.dropdown_bg_colour = args.dropdown_bg_colour or lighten(G.C.BLACK, 0.2)
     args.selected_colour = args.selected_colour or G.C.BLACK
+    args.display_choice_func = args.display_choice_func or function(option)
+        return option
+    end
 	local arrow = SMODS.create_sprite(0, 0, args.scale * 0.75, args.scale * 0.75, "dropdown_arrow", { x = 0, y = 0 })
 	local dropdown_button = UIBox({
 		definition = {
@@ -2865,8 +2868,8 @@ function SMODS.GUI.dropdown_select(args)
                         {
                             n = G.UIT.T,
                             config = {
-                                ref_table = args.ref_table,
-                                ref_value = args.ref_value,
+                                text = args.display_choice_func(args.ref_table[args.ref_value]),
+                                args_table = args,
                                 colour = args.text_colour or G.C.UI.TEXT_LIGHT,
                                 scale = args.scale,
                             },
@@ -2964,6 +2967,18 @@ function G.FUNCS.dropdown_select(e)
     if args.close_on_select then
         G.FUNCS.toggle_dropdown_menu(e.config.dropdown_button)
     end
+    local text = args.display_choice_func(args.ref_table[args.ref_value])
+    local parent = e.config.dropdown_button.children[1].children[1]
+    if parent.config and parent.config.text and not parent.config.text_drawable then
+        parent.config.lang = parent.config.lang or G.LANG
+        parent.config.text_drawable = love.graphics.newText((parent.config.font or parent.config.lang.font).FONT, {G.C.WHITE,parent.config.text})
+    end
+    if text ~= parent.config.prev_value then
+        parent.config.text = text
+        parent.config.text_drawable:set(parent.config.text)
+        if not parent.config.prev_value or (parent.config.prev_value and string.len(parent.config.prev_value) ~= string.len(parent.config.text)) then parent.UIBox:recalculate() end
+        parent.config.prev_value = text
+    end
 end
 
 function G.FUNCS.update_dropdown_select(e)
@@ -3008,7 +3023,11 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
                     nodes = {
                         {
                             n = G.UIT.T,
-                            config = { scale = args.dropdown_scale or 0.4, text = opt, colour = args.dropdown_text_colour or G.C.UI.TEXT_LIGHT },
+                            config = {
+                                scale = args.dropdown_scale or 0.4,
+                                text = args.display_choice_func(opt),
+                                colour = args.dropdown_text_colour or G.C.UI.TEXT_LIGHT
+                            },
                         },
                     },
                 },
