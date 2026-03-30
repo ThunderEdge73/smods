@@ -3056,6 +3056,13 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
         },
         sync_mode = "offset",
 	})
+    local force_no_scrollbar = false
+    if args.max_menu_h and scrollbox.content.UIRoot.T.h < args.max_menu_h then
+        force_no_scrollbar = true
+    end
+    if force_no_scrollbar then
+        scrollbox.scroll_args.overflow.node_config.maxh = nil
+    end
     if args.max_menu_h then
         local total_h = scrollbox.content.UIRoot.T.h
         local scrollbox_rows = scrollbox.content.UIRoot.children[1].children
@@ -3110,7 +3117,7 @@ function SMODS.GUI.create_UIBox_dropdown_menu(args, parent_width, parent)
                             }
                         }
                     },
-                    args.max_menu_h and {
+                    (args.max_menu_h and not force_no_scrollbar) and {
                         n = G.UIT.C,
                         config = {
                             padding = 0.05,
