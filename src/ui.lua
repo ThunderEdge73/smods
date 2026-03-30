@@ -2706,7 +2706,8 @@ function SMODS.GUI.scrollbar(args)
     if not args.ref_table or not args.ref_value then
         args.ref_table = args.scroll_collision_obj.scroll_offset
         args.ref_value = args.horizontal and "x" or "y"
-        args.max = args.scroll_collision_obj.content.T.h - args.scroll_collision_obj.T.h
+        local dim = args.horizontal and "w" or "h"
+        args.max = args.scroll_collision_obj.content.T[dim] - args.scroll_collision_obj.T[dim]
         args.scroll_collision_obj.scroll_args.sync_mode = "offset"
         args.scroll_collision_obj.scroll_sync_mode = "offset"
     end
