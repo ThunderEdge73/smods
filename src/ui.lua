@@ -2782,24 +2782,36 @@ function G.FUNCS.scrollbar(e)
     local ref_value = e.config.ref_value
     local scrollbox = e.config.scroll_collision_obj
     local percent = (ref_table[ref_value] - e.config.min) / (e.config.max - e.config.min)
-	if
-		G.CONTROLLER
-		and G.CONTROLLER.dragging.target
-		and (G.CONTROLLER.dragging.target == e or G.CONTROLLER.dragging.target == scrollbar_track)
-	then
-		if e.config.scroll_dir == "h" then
-			percent = (G.CURSOR.T.x - e.parent.T.x - G.ROOM.T.x - e.T.w / 2) / (scrollbar_track.T.w - e.T.w)
+    local should_scroll = true
+    if scrollbox then
+		if e.config.scroll_dir == "v" then
+            local h = scrollbox.scroll_args.overflow.node_config.h or scrollbox.scroll_args.overflow.node_config.maxh
+			should_scroll = scrollbox.content.T.h > (h or math.huge)
 		else
-			percent = (G.CURSOR.T.y - e.parent.T.y - G.ROOM.T.y - e.T.h / 2) / (scrollbar_track.T.h - e.T.h)
+            local w = scrollbox.scroll_args.overflow.node_config.w or scrollbox.scroll_args.overflow.node_config.maxw
+			should_scroll = scrollbox.content.T.w > (w or math.huge)
 		end
-        percent = math.max(0, math.min(1, percent))
-        ref_table[ref_value] = percent * (e.config.max - e.config.min) + e.config.min
-	elseif scrollbox and scrollbox:collides_with_point(G.CURSOR.T) or scrollbar_track:collides_with_point(G.CURSOR.T) then
-		local scroll_velocity = SMODS.wheel_velocity.y * (e.config.scroll_mult or 1) / G.TILESIZE
-        percent = (ref_table[ref_value] - e.config.min - scroll_velocity) / (e.config.max - e.config.min)
-		percent = math.max(0, math.min(1, percent))
-		ref_table[ref_value] = percent * (e.config.max - e.config.min) + e.config.min
-	end
+    end
+	if should_scroll then
+        if
+            G.CONTROLLER
+            and G.CONTROLLER.dragging.target
+            and (G.CONTROLLER.dragging.target == e or G.CONTROLLER.dragging.target == scrollbar_track)
+        then
+            if e.config.scroll_dir == "h" then
+                percent = (G.CURSOR.T.x - e.parent.T.x - G.ROOM.T.x - e.T.w / 2) / (scrollbar_track.T.w - e.T.w)
+            else
+                percent = (G.CURSOR.T.y - e.parent.T.y - G.ROOM.T.y - e.T.h / 2) / (scrollbar_track.T.h - e.T.h)
+            end
+            percent = math.max(0, math.min(1, percent))
+            ref_table[ref_value] = percent * (e.config.max - e.config.min) + e.config.min
+        elseif scrollbox and scrollbox:collides_with_point(G.CURSOR.T) or scrollbar_track:collides_with_point(G.CURSOR.T) then
+            local scroll_velocity = SMODS.wheel_velocity.y * (e.config.scroll_mult or 1) / G.TILESIZE
+            percent = (ref_table[ref_value] - e.config.min - scroll_velocity) / (e.config.max - e.config.min)
+            percent = math.max(0, math.min(1, percent))
+            ref_table[ref_value] = percent * (e.config.max - e.config.min) + e.config.min
+        end
+    end
     if e.config.scroll_dir == "h" then
         scrollbar_track.UIRoot.children[1].config.minw = percent * (scrollbar_track.T.w - e.T.w)
     else
