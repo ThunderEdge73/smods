@@ -2948,7 +2948,7 @@ function SMODS.GUI.dropdown_select(args)
                                         },
                                         colours = { args.text_colour or G.C.UI.TEXT_LIGHT },
                                         scale = args.scale,
-                                        non_recalc = true,
+                                        non_recalc = type(args.minw) == "number",
                                         shadow = true,
                                         silent = true,
                                     })
